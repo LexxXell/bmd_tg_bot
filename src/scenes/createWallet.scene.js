@@ -20,12 +20,12 @@ module.exports = new WizardScene(
                 await ctx.replyWithHTML(ctx.i18n.t("walletCreation.cancel"));
                 return ctx.scene.leave();
             }
-            await ctx.deleteMessage(ctx.message.chat.chat_id, ctx.message.message_id)
+            await ctx.deleteMessage(ctx.message.chat.chat_id, ctx.message.message_id);
             if (/^\d{4}$/.test(ctx.message.text)) {
                 // Тут создаём кошелёк
                 const pincode = ctx.message.text;
                 const ethWallet = await utils.generateWallet();
-                const encPrivateKey = utils.cipher(ethWallet.privateKey, pincode)
+                const encPrivateKey = utils.cipher(ethWallet.privateKey, pincode);
                 // Проверка на сбой при шифровке (практически невероятно, но всё же)
                 if (ethWallet.privateKey !== utils.decipher(encPrivateKey, pincode))
                     return ctx.replyWithHTML(ctx.i18n.t("walletCreation.badPincode"));

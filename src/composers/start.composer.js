@@ -3,11 +3,11 @@ const { Composer } = require("telegraf")
 const composer = new Composer();
 
 composer.start(async ctx => {
-    if (!ctx.wallet) {
+    if (!ctx.session.wallet) {
         await ctx.reply(ctx.i18n.t("greeting_new", { ctx }));
         try {
-            await ctx.reply("[a[a");
-        } catch (e) { console.error("[ERROR] Scene 'ungerisreted.scene': ", e) }
+            await ctx.scene.enter("unknownUser");
+        } catch (e) { (e) }
         return
     }
     await ctx.reply(ctx.i18n.t("greeting", { ctx }));
