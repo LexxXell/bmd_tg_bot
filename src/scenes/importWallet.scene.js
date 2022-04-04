@@ -1,86 +1,57 @@
 const WizardScene = require('telegraf/scenes/wizard')
+const inputPincode = require("./sketches/inputPincode");
 
 const { Wallet } = require("../db");
 
 const utils = require("../utils");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ДОБАВИТЬ В НАЧАЛО СОДАНИЕ ПИН-КОДА!!!!!
-
-
-
-
-
+const web3utils = require("../web3/utils");
 
 module.exports = new WizardScene(
     "importWallet",
     async ctx => {
         try {
-            switch (ctx.message.text) {
-                case ("/mnemonic"):
-                    ctx.session.importWallet = "mnemonic";
-                    await ctx.replyWithHTML("Пришли мне мнемоническую фразу");
-                    return ctx.wizard.next();
-                case ("/privateKey"):
-                    ctx.session.importWallet = "privateKey";
-                    await ctx.replyWithHTML("Пришли мне приватный ключ");
-                    return ctx.wizard.next();
-                default:
-                    if (!ctx.session.importWallet || ctx.session.importWallet === "") {
-                        await ctx.replyWithHTML("Импортировать кошелёк можно прислав мне мнемоническую фразу или приватный ключ");
-                        await ctx.replyWithHTML("/privateKey приватный ключ");
-                        await ctx.replyWithHTML("/mnemonic мнемоническая фраза");
-                    }
-                    return
-            }
+            ctx.session.namespace = "importWallet"; // Global namespace
+
+            // Sketches session initialization
+            ctx.session.inputPincode = Object();
+            ctx.session.inputPincode.namespace = ctx.session.namespace; // Special namespace
+
+            await ctx.replyWithHTML(ctx.i18n.t(ctx.session.namespace + ".greeting"));
+            await ctx.replyWithHTML(ctx.i18n.t("inputPincode.greeting"));
+            return await ctx.wizard.next();
         } catch (e) { console.log(e) }
     },
+    inputPincode,
     async ctx => {
         try {
-            await ctx.deleteMessage(ctx.message.chat.chat_id, ctx.message.message_id);
-            var wallet = {}
-            switch (ctx.session.importWallet) {
-                case ("mnemonic"):
-                    try {
-                        wallet = await utils.walletFromMnemonic(ctx.message.text);
-                    } catch { wallet = false }
-                    if (!wallet) return await ctx.replyWithHTML("Мнемоническая фраза не подходит. Пришли повторно.");
-                    break;
-                case ("privateKey"):
-                    var address = ""
-                    try {
-                        address = await utils.privateKeyToAddress(ctx.message.text);
-                    } catch { address = false }
-                    if (!address) return await ctx.replyWithHTML("Приватный ключ не подходит. Пришли повторно.");
-                    wallet = {
-                        address: address,
-                        privateKey: ctx.message.text
-                    }
-                    break;
+            if (ctx.message.text === "/cancel") {
+                await ctx.replyWithHTML(ctx.i18n.t("cancel"));
+                return await ctx.scene.leave();
             }
-            ctx.session.importWallet = "";
+            if (/0x[A-Za-z0-9]+$/.test(ctx.message.text)) { // If Private Key
+                ctx.session.wallet = {
+                    address: await web3utils.privateKeyToAddress(ctx.message.text),
+                    privateKey: ctx.message.text,
+                    encPrivateKey: utils.cipher(ctx.message.text, ctx.session.inputPincode.pincode)
+                }
+            } else { // If mnemonic
+                ctx.session.wallet = await web3utils.mnemonicToWallet(ctx.message.text);
+                ctx.session.wallet = {
+                    ...ctx.session.wallet,
+                    encPrivateKey: utils.cipher(ctx.session.wallet.privateKey, ctx.session.inputPincode.pincode)
+                }
+            }
+            await utils.botDeleteMessage(ctx);
             await Wallet.create({
                 _id: ctx.from.id,
                 username: ctx.from.username,
-                address: wallet.address,
-                encPrivateKey: wallet.encPrivateKey,
+                address: ctx.session.wallet.address,
+                encPrivateKey: ctx.session.wallet.encPrivateKey,
                 lastActivityAt: Date.now(),
             });
-            await ctx.replyWithHTML("Кошелёк успешно импортирован");
-            return ctx.scene.leave();
+            ctx.session.wallet = NaN
+            await ctx.replyWithHTML(ctx.i18n.t(ctx.session.namespace + ".success"));
+            return await ctx.scene.leave();
         } catch (e) { console.log(e) }
     }
 );
-

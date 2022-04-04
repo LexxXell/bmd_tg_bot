@@ -1,13 +1,13 @@
 const WizardScene = require('telegraf/scenes/wizard')
+const utils = require("../utils");
 
 module.exports = new WizardScene(
     "unknownUser",
     async ctx => {
         try {
-            await ctx.replyWithHTML("Ты желаешь создать новый кошелёк или импортировать уже существующий?");
-            await ctx.replyWithHTML("Создать новый /createWallet");
-            await ctx.replyWithHTML("Импортировать /importWallet");
-            await ctx.replyWithHTML("Отмена /cancel");
+            await ctx.replyWithHTML(
+                ctx.i18n.t("unknownUser.greeting")
+            );
             return ctx.wizard.next();
         } catch (e) { console.log(e) }
     },
@@ -19,10 +19,10 @@ module.exports = new WizardScene(
                 case ("/importWallet"):
                     return await ctx.scene.enter('importWallet');
                 case ("/cancel"):
-                    await ctx.replyWithHTML(ctx.i18n.t("unknownUser.cancel"));
+                    await ctx.replyWithHTML(ctx.i18n.t("cancel"));
                     return ctx.scene.leave();
                 default:
-                    return await ctx.deleteMessage(ctx.message.chat.chat_id, ctx.message.message_id);
+                    return await utils.botDeleteMessage(ctx);
             }
         } catch (e) { console.log(e) }
     }

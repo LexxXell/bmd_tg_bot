@@ -1,3 +1,5 @@
+const utils = require("../../utils");
+
 module.exports = async ctx => {
     try {
         const sketchName = "inputPincode";
@@ -10,17 +12,19 @@ module.exports = async ctx => {
                 : ""
 
         if (ctx.message.text === "/cancel") {
-            ctx.replyWithHTML(ctx.i18n.t(namespace + "inputPincode.cancel"));
+            ctx.replyWithHTML(ctx.i18n.t("cancel"));
             return await ctx.scene.leave();
         };
-
-        await ctx.deleteMessage(ctx.message.chat.chat_id, ctx.message.message_id);
+        
+        await utils.botDeleteMessage(ctx, ctx.message.id);
 
         if (!/^\d{4}$/.test(ctx.message.text)) return;
 
-        if (typeof (ctx.session.inputPincode.callback) === "function")
-            return await ctx.session.inputPincode.callback(ctx);
-
+        if (typeof (ctx.session.inputPincode.callback) === "function") {
+            let callback = ctx.session.inputPincode.callback
+            ctx.session.inputPincode.callback = undefined;
+            return await callback(ctx);
+        }
         ctx.session.inputPincode = {
             pincode: ctx.message.text
         }

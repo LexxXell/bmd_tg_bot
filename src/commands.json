@@ -1,0 +1,17 @@
+{
+    "admin": {
+        "namespace": "admin",
+        "extends": [
+            "adminHelp",
+            "adminSetGlogalSettings"
+        ]
+    },
+    "wallet": {
+        "namespace": "wallet",
+        "extends": [
+            "getBalance",
+            "getAddress",
+            "sos"
+        ]
+    }
+}
