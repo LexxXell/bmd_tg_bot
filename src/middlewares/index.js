@@ -3,6 +3,7 @@ const setWalletMiddleware = require("./setWallet");
 const checkWeb3ConnectionMiddleware = require("./checkWeb3Connection");
 const setAdminMiddleware = require("./setAdmin");
 const setSmartContractsMiddleware = require("./setSmartContracts");
+const commandHelpMiddleware = require("./commandHelp");
 
 module.exports = {
     setWalletMiddleware,
@@ -10,4 +11,5 @@ module.exports = {
     checkWeb3ConnectionMiddleware,
     setAdminMiddleware,
     setSmartContractsMiddleware,
+    commandHelpMiddleware,
 }

@@ -1,7 +1,9 @@
 const { SmartContract, SmartContractAbi, mongoose } = require("../db");
 
 let contracts = (async () => {
-    let contract = await SmartContract.find();
+    let contract = {}
+    let _contract = await SmartContract.find();
+    _contract.forEach(item => contract[item.name] = item);
     let abi = {}
     let _abi = await SmartContractAbi.find();
     _abi.forEach(item => abi[item.name] = item.abi)
@@ -13,6 +15,6 @@ let contracts = (async () => {
 })()
 
 module.exports = async (ctx, next) => {
-    ctx.contracts = await contracts;
+    ctx.session.contracts = await contracts;
     return next();
 }

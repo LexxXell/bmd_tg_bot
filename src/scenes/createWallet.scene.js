@@ -43,10 +43,6 @@ module.exports = new WizardScene(
     inputPincode,
     async ctx => {
         try {
-            await utils.botDeleteMessage(
-                ctx,
-                ctx.session.secretMessage.message_id
-            );
             switch (ctx.message.text) {
                 case ("/cancel"):
                     await ctx.replyWithHTML(ctx.i18n.t("cancel"));
@@ -61,7 +57,13 @@ module.exports = new WizardScene(
                     });
                     await ctx.replyWithHTML(ctx.i18n.t(ctx.session.namespace + ".success"));
                     break;
+                default:
+                    return utils.botDeleteMessage(ctx);
             }
+            await utils.botDeleteMessage(
+                ctx,
+                ctx.session.secretMessage.message_id
+            );
             ctx.session.wallet = NaN
             return await ctx.scene.leave();
         } catch (e) { console.log(e) }

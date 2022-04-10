@@ -7,16 +7,17 @@ module.exports = async ctx => {
 
         balance[process.env.BOT_MAIN_COIN_NAME] = {
             symbol: process.env.BOT_MAIN_COIN_SYMBOL,
-            value: weiToCoin(await web3.eth.getBalance(ctx.wallet.address))
+            value: weiToCoin(await web3.eth.getBalance(ctx.session.wallet.address))
         }
 
-        for (i = 0; i < ctx.contracts.contract.length; i++) {
-            balance[ctx.contracts.contract[i].name] = {
+        for (contractName in ctx.session.contracts.contract) {
+            const contract = ctx.session.contracts.contract[contractName];
+            balance[contractName] = {
                 value: weiToCoin(await (new web3.eth.Contract(
-                    JSON.parse(ctx.contracts.abi[ctx.contracts.contract[i].abi]),
-                    ctx.contracts.contract[i].address
-                )).methods.balanceOf(ctx.wallet.address).call()),
-                symbol: ctx.contracts.contract[i].symbol
+                    JSON.parse(ctx.session.contracts.abi[contract.abi]),
+                    contract.address
+                )).methods.balanceOf(ctx.session.wallet.address).call()),
+                symbol: contract.symbol,
             }
         }
 

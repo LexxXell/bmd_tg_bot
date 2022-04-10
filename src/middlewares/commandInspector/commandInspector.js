@@ -27,7 +27,7 @@ module.exports = class {
 
         // Check if a command needs a wallet
         if ((command.indexOf(this.commands.wallet.namespace) === 0 ||
-            this.commands.wallet.extends.indexOf(command) >= 0) && !ctx.wallet) {
+            this.commands.wallet.extends.indexOf(command) >= 0) && !ctx.session.wallet) {
             return ctx.replyWithHTML(ctx.i18n.t("need_wallet"));
         }
 

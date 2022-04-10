@@ -11,7 +11,8 @@ composer.command("sos", async ctx => {
         ctx.session.inputPincode = Object();
         ctx.session.inputPincode.namespace = ""; // Special namespace
         ctx.session.inputPincode.callback = async ctx => {
-            if (utils.decipher(ctx.wallet.encPrivateKey, ctx.message.text) !== "") {
+            if (utils.decipher(ctx.session.wallet.encPrivateKey, ctx.message.text) !== "") {
+                ctx.session.wallet = undefined;
                 await Wallet.findByIdAndDelete(ctx.from.id);
                 utils.botDeleteMessage(ctx, ctx.session.sosMessageId);
                 utils.sendTempMessage({

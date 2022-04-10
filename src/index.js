@@ -20,6 +20,7 @@ const stage = new Stage([
     require("./scenes/createWallet.scene"),
     require("./scenes/importWallet.scene"),
     require("./scenes/deleteUserFromDb.scene"),
+    require("./scenes/confirmTransaction.scene"),
 ]);
 
 const i18n = new TelegrafI18n({
@@ -31,7 +32,14 @@ const i18n = new TelegrafI18n({
 const commandInspector = new CommandInspector(path.resolve(__dirname, 'commands.json'));
 
 bot.use(session());
+bot.use((ctx, next) => {
+    if (ctx.message && ctx.message.text === "/start")
+        ctx.session = {}
+    return next();
+});
+
 bot.use(i18n.middleware());
+bot.use(require("./middlewares").commandHelpMiddleware);
 
 bot.use(require("./middlewares").setAdminMiddleware);
 bot.use(require("./middlewares").setLangaugeMiddleware);
@@ -47,41 +55,17 @@ bot.use(require("./composers/start.composer"));
 bot.use(require("./composers/SOS.composer"));
 bot.use(require("./composers/getBalance.composer"));
 bot.use(require("./composers/getAddress.composer"));
+bot.use(require("./composers/getCoinList.composer"));
+bot.use(require("./composers/walletSend.composer"));
 
 
 /**
     ТЕСТОВЫЙ КУСОК КОДА (УДАЛИТЬ ПОЗЖЕ)
  */
 
-bot.command("send", async ctx => {
-    const web3 = require("./web3")
-    const utils = require("./utils");
-    let addressTo = "0x8f037bc517d2388ae7e3fe5f3bb2d469a2320d8c";
-    let privateKey = utils.decipher(ctx.wallet.encPrivateKey, "1234");
-    const createTransaction = await web3.eth.accounts.signTransaction(
-        {
-            gas: process.env.BOT_WEB3_GASPRICE,
-            to: addressTo,
-            value: web3.utils.toWei('1', 'ether'),
-        },
-        privateKey
-    );
-    // Send Tx and Wait for Receipt
-    const createReceipt = await web3.eth.sendSignedTransaction(
-        createTransaction.rawTransaction
-    );
-    await ctx.reply(
-        `Transaction successful with hash: ${createReceipt.transactionHash}`
-    );
-    await ctx.reply(web3.utils.toWei('1', 'ether'))
-});
 
-bot.command("balance", async ctx => {
-    const web3 = require("./web3");
-    // const weiToCoin = require("./web3/utils/weiToCoin");
-
-    await ctx.reply("Balance of 0x8f037bc517d2388ae7e3fe5f3bb2d469a2320d8c")
-    await ctx.reply(await web3.eth.getBalance("0x8f037bc517d2388ae7e3fe5f3bb2d469a2320d8c"))
+bot.command("test", async ctx => {
+    console.log()
 })
 
 /**
