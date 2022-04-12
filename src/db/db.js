@@ -9,6 +9,14 @@ mongoose.connection.on('error', err => {
     console.log('[ERROR] MONGODB ', err)
 })
 
-mongoose.connection.once('open', () => {
+const then = async callback => {
+    if (typeof (callback) === "function")
+        return await callback();
+}
+
+mongoose.connection.once('open', async () => {
     console.log('[INFO] MONGODB connected')
+    await then();
 })
+
+module.exports = {then, mongoose};
