@@ -46,7 +46,7 @@ module.exports = async (contractsDirPath, abiDirPath) => {
 
 
                     if (!contractData.name || !contractData.symbol) {
-                        const contract = new web3.eth.Contract(
+                        const contract = await new web3.eth.Contract(
                             JSON.parse((await SmartContractAbi.findOne({name: contractData.abi})).abi),
                             contractData.address,
                         );

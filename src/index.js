@@ -21,6 +21,7 @@ const stage = new Stage([
     require("./scenes/importWallet.scene"),
     require("./scenes/deleteUserFromDb.scene"),
     require("./scenes/confirmTransaction.scene"),
+    require("./scenes/walletSendWizard.scene"),
 ]);
 
 const i18n = new TelegrafI18n({
@@ -65,7 +66,7 @@ bot.use(require("./composers/walletSend.composer"));
 
 
 bot.command("test", async ctx => {
-    console.log()
+    ctx.reply(await require("./web3/utils").preparationAddress(ctx, "@aa"));
 })
 
 /**

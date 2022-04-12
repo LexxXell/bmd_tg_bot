@@ -1,4 +1,4 @@
-const { SmartContract, SmartContractAbi, mongoose } = require("../db");
+const { SmartContract, SmartContractAbi } = require("../db");
 
 let contracts = (async () => {
     let contract = {}

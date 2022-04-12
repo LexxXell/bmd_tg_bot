@@ -3,6 +3,7 @@ const checkFunds = require("./checkFunds");
 const generateWallet = require("./generateWallet");
 const getWalletBalance = require("./getWalletBalance");
 const mnemonicToWallet = require("./mnemonicToWallet");
+const preparationAddress = require("./preparationAddress");
 const privateKeyToAddress = require("./privateKeyToAddress");
 const privateKeyToPublicKey = require("./privateKeyToPublicKey");
 const signContractTransaction = require("./signContractTransaction");
@@ -14,6 +15,7 @@ module.exports = {
     generateWallet,
     getWalletBalance,
     mnemonicToWallet,
+    preparationAddress,
     privateKeyToAddress,
     privateKeyToPublicKey,
     signContractTransaction,

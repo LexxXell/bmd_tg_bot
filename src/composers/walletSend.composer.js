@@ -14,8 +14,7 @@ composer.command("walletSend", async ctx => {
 
         switch (commandArgs.length) {
             case 1:
-                await ctx.reply("Вызов сцены мастера отправки коинов");
-                break;
+                return await ctx.scene.enter("walletSendWizard");
             case 3:
                 // Отправка основного коина
                 coinName = process.env.BOT_MAIN_COIN_NAME;

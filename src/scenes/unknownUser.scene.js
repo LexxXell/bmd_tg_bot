@@ -27,4 +27,3 @@ module.exports = new WizardScene(
         } catch (e) { console.log(e) }
     }
 );
-

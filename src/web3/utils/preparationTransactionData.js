@@ -1,6 +1,7 @@
 const { Wallet } = require("../../db");
 const { TransactionData } = require("../classes");
 const checkFunds = require("./checkFunds");
+const preparationAddress = require("./preparationAddress");
 
 module.exports = async ctx => {
 
@@ -13,12 +14,13 @@ module.exports = async ctx => {
         ? _coinName_Arg
         : undefined;
 
-    let addressTo = (/^0x[a-fA-F0-9]{40}$/.test(_addressTo_Arg))
-        ? _addressTo_Arg
-        : undefined;
 
-    let amount = parseFloat(_amount_Arg) > 0
-        ? String(parseFloat(_amount_Arg))
+    let addressTo = await preparationAddress(ctx, _addressTo_Arg);
+    if (!addressTo) return false
+
+    let amount = Math.abs(parseFloat(_amount_Arg))
+    amount = amount > 0
+        ? String(amount)
         : undefined;
 
     if (!coinName) {
@@ -30,23 +32,6 @@ module.exports = async ctx => {
         await ctx.replyWithHTML(ctx.i18n.t("walletSend.amountIncorrect"));
         return false
     }
-
-    if (!addressTo)
-        if (/^@/.test(_addressTo_Arg)) { // Если не указан прямой адрес но есть телеграм username
-            // Поиск среди кошельков
-            let walletTo = await Wallet.findOne({ username: _addressTo_Arg.slice(1) });
-            if (walletTo) {
-                addressTo = walletTo.address;
-            } else {
-                await ctx.replyWithHTML(ctx.i18n.t("walletSend.usernameNotRegistered"));
-                return false
-            }
-        } else {
-            // Поиск среди сохранённых адресов
-            await ctx.replyWithHTML(ctx.i18n.t("walletSend.noSavedAddresses"));
-            return false
-        }
-
     if (!addressTo) {
         await ctx.replyWithHTML(ctx.i18n.t("walletSend.transactionNotPossibleNoRecipient"));
         return false
